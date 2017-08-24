@@ -1,0 +1,337 @@
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width" />
+            <title>Tank Battle</title>
+            <style>
+            body {
+                overflow:hidden;
+                font-family:arial, sans-serif;
+            }
+            svg#tank {
+                position:absolute;
+                bottom:0;
+                left:0;
+                z-index:2;
+            }
+            div.proj {
+                position:absolute;
+                bottom:50px;
+                left:0;
+                width:6px;
+                height:6px;
+                border-radius:10px;
+                background:red;
+            }
+            .ammo {
+                position:absolute;
+                top:20px;
+                right:20px;
+                font-size:32px;
+            }
+            .score {
+                position:absolute;
+                top:20px;
+                left:20px;
+                font-size:32px;
+            }
+            .target {
+                position:absolute;
+                width:50px;
+                height:50px;
+                background:silver;
+                z-index:1;
+                transition:all 0.5s;
+            }
+            .target.bomb {
+                background: red;
+            }
+            .target.newammo {
+                background: green;
+            }
+            .target.off {
+                margin:-25px;
+                width:100px;
+                height:100px;
+                opacity:0;
+            }
+            label.sound {
+                position:absolute;
+                right:150px;
+                top:20px;
+            }
+            </style>
+        </head>
+        <body>
+
+        
+<audio id="bomb" src="bomb.mp3"></audio>
+<audio id="shoot" src="shoot.mp3"></audio>
+
+        <div class="score">0</div>
+        <div class="ammo">5</div>
+        <label class="sound"><input type="checkbox" id="sound" checked /> sound</label>
+
+<svg width="120" height="120" id="tank"><g transform="scale(0.33),translate(-111.133 -63.828)"><path d="M233.291 230.382c-11.587 0-14.143.32-20.551 2.588-10 3.54-19.228 7.597-25.767 15.105-13 14.923-22.715 54.856-22.715 54.856l10.082.348c5.543.184 36.607.423 69.034.54l58.951.232-.618-9.426c1.242-66.482-68.416-64.243-47.864-61.655-6.408-2.269-8.965-2.588-20.552-2.588zM152.22 306.099c-6.831 5.693-11.514 8.196-23.642 36.313h242.603c-17.71-11.565-22.91-22.687-53.31-34.42l-69.073-.696c-37.979-.384-75.214-.834-82.786-.966z" fill="#2e3436"/><circle cx="194.07" cy="384.105" r="29.497" fill="#2e3436"/><path d="M139.924 349.416h231.875s28-.382 30.063 12.09c8.422 50.916-55.663 58.055-55.663 58.055H156.991c-17.132 0-41.591-13.792-41.591-30.924V373.94c0-17.132 7.392-24.524 24.524-24.524z" fill="none" stroke="#2e3436" stroke-width="8.533"/><g transform="matrix(.5849 0 0 .5849 -87.45 67.87)" fill="#2e3436"><circle cx="392.586" cy="528.73" r="31.009"/><g transform="translate(129.73 -3.214)"><rect ry="6.411" y="491.969" x="256.444" height="25.644" width="12.822"/><rect width="12.822" height="25.644" x="256.444" y="546.275" ry="6.411"/></g><g transform="rotate(-45 323.841 373.739)"><rect width="12.822" height="25.644" x="256.444" y="491.969" ry="6.411"/><rect ry="6.411" y="546.275" x="256.444" height="25.644" width="12.822"/></g><g transform="rotate(-90 326.114 465.472)"><rect ry="6.411" y="491.969" x="256.444" height="25.644" width="12.822"/><rect width="12.822" height="25.644" x="256.444" y="546.275" ry="6.411"/></g><g transform="rotate(-135 327.055 503.47)"><rect width="12.822" height="25.644" x="256.444" y="491.969" ry="6.411"/><rect ry="6.411" y="546.275" x="256.444" height="25.644" width="12.822"/></g></g><circle cx="256.168" cy="384.823" r="29.497" fill="#2e3436"/><circle cx="318.267" cy="384.823" r="29.497" fill="#2e3436"/><g transform="matrix(.45149 0 0 .45149 201.194 134.677)" fill="#2e3436"><circle cx="392.586" cy="528.73" r="31.009"/><g transform="translate(129.73 -3.214)"><rect width="12.822" height="25.644" x="256.444" y="491.969" ry="6.411"/><rect ry="6.411" y="546.275" x="256.444" height="25.644" width="12.822"/></g><g transform="rotate(-45 323.841 373.739)"><rect ry="6.411" y="491.969" x="256.444" height="25.644" width="12.822"/><rect width="12.822" height="25.644" x="256.444" y="546.275" ry="6.411"/></g><g transform="rotate(-90 326.114 465.472)"><rect width="12.822" height="25.644" x="256.444" y="491.969" ry="6.411"/><rect ry="6.411" y="546.275" x="256.444" height="25.644" width="12.822"/></g><g transform="rotate(-135 327.055 503.47)"><rect ry="6.411" y="491.969" x="256.444" height="25.644" width="12.822"/><rect width="12.822" height="25.644" x="256.444" y="546.275" ry="6.411"/></g></g><g id="cannon"><path d="M402.58 280.564l8.818 8.082 20.824-7.915-.717-31.051-19.908-7.632-10.941 9.228c-221.227 2.23-245.431 27.9 1.925 29.288z" fill="#2e3436"/></g></g></svg>
+
+            <script src="buffer-loader.js"></script>
+            <script>
+            const gravity=0.02;
+            let targets=[];
+            let context = new AudioContext();
+            let sounds={};
+            let sound=document.querySelector('label.sound input');
+
+            bufferLoader = new BufferLoader(
+                context,
+                [
+                  'shoot.mp3',
+                  'bomb.mp3',
+                ],
+                function (bufferList) {
+                    sounds['shoot']=bufferList[0];
+                    sounds['bomb']=bufferList[1];
+                }
+            );
+
+            bufferLoader.load();
+
+            function playaudio(audioid){
+                if(sound.checked){ 
+                    var source = context.createBufferSource();
+                    source.buffer = sounds[audioid];
+                    source.connect(context.destination);
+                    source.start(0);
+                }
+            }
+            function projectile(x,y,angle){
+                let _x=0;
+                let _y=0;
+                let _alive=true;
+                Object.defineProperty(this,'alive',{
+                    get:function(){return _alive},
+                    set:function(v){
+                        _alive=v;
+                        try {
+                            if(!v)document.body.removeChild(this.html);
+                        } catch(e){};
+                    }
+                });
+                Object.defineProperty(this,'x',{
+                    get:function(){return _x},
+                    set:function(v){
+                        _x=v;
+                        if(v>2000)this.alive=false;
+                        this.html.style.left=v+'px';
+                    }
+                });
+                Object.defineProperty(this,'y',{
+                    get:function(){return _y},
+                    set:function(v){
+                        _y=v;
+                        if(v<-20)this.alive=false;
+                        this.html.style.bottom=v+'px';
+                    }
+                });
+                this.dy=5*Math.sin(angle/180*Math.PI);
+                this.dx=5*Math.cos(angle/180*Math.PI);
+                this.html=document.createElement('div');
+                this.html.className='proj';
+                document.body.appendChild(this.html);
+                this.x=x;
+                this.y=y;
+                this.oldx=x;
+                this.oldy=y;
+                this.antigravity=4;
+                this.loop=function(){
+                    if(this.alive){
+                        this.oldx=this.x;
+                        this.oldy=this.y;
+                        this.x+=this.dx;
+                        this.y+=this.dy;
+                        if(--this.antigravity<0){
+                            this.dy-=gravity;
+                        }
+                    }
+                    for(let i=0;i<targets.length;i++){
+                      if(targets[i].hit(this)){
+                          targets=targets.filter((t)=>t.alive);
+                          break;
+                      }
+                    }
+                    return true;
+                }
+                playaudio('shoot');
+            }
+            function target(x,y,type){
+                this.alive=true;
+                this.html=document.createElement('div');
+                this.html.className='target '+type;
+                this.html.style.left=x+'px';
+                this.html.style.bottom=y+'px';
+                document.body.appendChild(this.html);
+                targets.push(this);
+                this.hit=function(bullet){
+                    if(this.alive){
+                        if(lbclip([bullet.oldx,bullet.oldy],[bullet.x,bullet.y],[x,y,x+50,y+50])){
+                            if(type=='newammo'){
+                                tank.ammo+=3;
+                                addtargets();
+                                tank.score+=500+Math.floor(x+y);
+                            }
+                            if(type=='bomb'){
+                                tank.ammo-=2;
+                                tank.score-=500;
+                            }
+                            playaudio('bomb');
+                            bullet.alive=false;
+                            this.alive=false;
+                            this.html.className+=" off";
+                            let target=this;
+                            setTimeout(function(){
+                                document.body.removeChild(target.html);
+                            },400);
+                        }
+                    }
+                }
+            }
+            let tank={
+               cannon:document.querySelector('#cannon'),
+               body:document.querySelector('#tank'),
+               moving:0,
+               aiming:0,
+               alive:true,
+               loop:function(){
+                   this.left+=this.moving;
+                   this.angle+=this.aiming;
+                   if(this.recharging){
+                       if(this.recharge){
+                           --this.recharge;
+                       }else{
+                           this.recharging=false;
+                       }
+                   }
+                   if(this.ammo){
+                       if(this.shooting && !this.recharging){
+                           window.loopables.push(new projectile(this.left+40,50,this.angle));
+                           this.ammo--;
+                           this.recharge=30;
+                           this.shooting=false;
+                           this.recharging=false;
+                       }
+                   }
+                   return true;
+               },
+               shooting:false,
+               recharging:false,
+               recharge:0,
+            }
+
+            window.loopables=[tank];
+
+            let _angle=0;
+            let _left=0;
+            let _ammo=5;
+            let _score=0;
+
+            Object.defineProperty(tank,'score',{
+                get:function(){return _score},
+                set:function(d){
+                    _score=d;
+                    document.querySelector('.score').innerHTML=d;
+                },
+            });
+
+            Object.defineProperty(tank,'angle',{
+                get:function(){return _angle},
+                set:function(d){
+                    if(d<0)d=0;
+                    if(d>90)d=90;
+                    _angle=d;
+                    tank.cannon.setAttribute('transform','rotate('+(-d)+',240,260)');
+                },
+            });
+
+            Object.defineProperty(tank,'left',{
+                get:function(){return _left},
+                set:function(l){
+                    if(l<0)l=0;
+                    if(l>500)l=500;
+                    _left=l;
+                    tank.body.style.left=l+'px';
+                },
+            });
+
+            Object.defineProperty(tank,'ammo',{
+                get:function(){return _ammo},
+                set:function(d){
+                    _ammo=Math.max(d,0);
+                    document.querySelector('.ammo').innerHTML=_ammo;
+                },
+            });
+
+            window.tank=tank
+
+            window.addEventListener('keydown',function(ev){
+                if(ev.keyCode==32){
+                    tank.shooting=true;
+                    tank.recharging=false;
+                }
+                if(ev.keyCode==39){
+                    tank.moving=1;
+                }
+                if(ev.keyCode==37){
+                    tank.moving=-1;
+                }
+                if(ev.keyCode==38){
+                    tank.aiming=0.1;
+                }
+                if(ev.keyCode==40){
+                    tank.aiming=-0.1;
+                }
+            });
+            window.addEventListener('keyup',function(ev){
+                if(ev.keyCode==32){
+                   tank.shooting=false;
+                   tank.recharging=true;
+                }
+                if(ev.keyCode==39){
+                    tank.moving=0;
+                }
+                if(ev.keyCode==37){
+                    tank.moving=0;
+                }
+                if(ev.keyCode==38){
+                    tank.aiming=0;
+                }
+                if(ev.keyCode==40){
+                    tank.aiming=0;
+                }
+            });
+
+            function gameLoop(){
+                loopables.map(function(l){
+                    return l.loop()
+                });
+                loopables=loopables.filter((x)=>x.alive);
+            }
+
+            function addtargets(){
+                new target(600+500*Math.random(),500*Math.random(),'bomb');
+                new target(600+500*Math.random(),500*Math.random(),'newammo');
+            }
+
+            setInterval(gameLoop,5);
+            setTimeout(addtargets,2000);
+
+
+            </script>
+            <script src="liang-barsky.min.js"></script>
+
+        </body>
+
+
+    </html>
+
+
