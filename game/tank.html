@@ -78,7 +78,7 @@
 
         <div class="score">0</div>
         <div class="ammo">5</div>
-        <label class="sound"><input type="checkbox" id="sound" onclick="this.blur()" checked /> sound</label>
+        <label class="sound"><input type="checkbox" id="sound" onclick="this.blur()" checked /> <u>s</u>ound</label>
 
 <svg width="120" height="120" id="tank"><g transform="scale(0.33),translate(-111.133 -63.828)"><path d="M233.291 230.382c-11.587 0-14.143.32-20.551 2.588-10 3.54-19.228 7.597-25.767 15.105-13 14.923-22.715 54.856-22.715 54.856l10.082.348c5.543.184 36.607.423 69.034.54l58.951.232-.618-9.426c1.242-66.482-68.416-64.243-47.864-61.655-6.408-2.269-8.965-2.588-20.552-2.588zM152.22 306.099c-6.831 5.693-11.514 8.196-23.642 36.313h242.603c-17.71-11.565-22.91-22.687-53.31-34.42l-69.073-.696c-37.979-.384-75.214-.834-82.786-.966z" fill="#2e3436"/><circle cx="194.07" cy="384.105" r="29.497" fill="#2e3436"/><path d="M139.924 349.416h231.875s28-.382 30.063 12.09c8.422 50.916-55.663 58.055-55.663 58.055H156.991c-17.132 0-41.591-13.792-41.591-30.924V373.94c0-17.132 7.392-24.524 24.524-24.524z" fill="none" stroke="#2e3436" stroke-width="8.533"/><g transform="matrix(.5849 0 0 .5849 -87.45 67.87)" fill="#2e3436"><circle cx="392.586" cy="528.73" r="31.009"/><g transform="translate(129.73 -3.214)"><rect ry="6.411" y="491.969" x="256.444" height="25.644" width="12.822"/><rect width="12.822" height="25.644" x="256.444" y="546.275" ry="6.411"/></g><g transform="rotate(-45 323.841 373.739)"><rect width="12.822" height="25.644" x="256.444" y="491.969" ry="6.411"/><rect ry="6.411" y="546.275" x="256.444" height="25.644" width="12.822"/></g><g transform="rotate(-90 326.114 465.472)"><rect ry="6.411" y="491.969" x="256.444" height="25.644" width="12.822"/><rect width="12.822" height="25.644" x="256.444" y="546.275" ry="6.411"/></g><g transform="rotate(-135 327.055 503.47)"><rect width="12.822" height="25.644" x="256.444" y="491.969" ry="6.411"/><rect ry="6.411" y="546.275" x="256.444" height="25.644" width="12.822"/></g></g><circle cx="256.168" cy="384.823" r="29.497" fill="#2e3436"/><circle cx="318.267" cy="384.823" r="29.497" fill="#2e3436"/><g transform="matrix(.45149 0 0 .45149 201.194 134.677)" fill="#2e3436"><circle cx="392.586" cy="528.73" r="31.009"/><g transform="translate(129.73 -3.214)"><rect width="12.822" height="25.644" x="256.444" y="491.969" ry="6.411"/><rect ry="6.411" y="546.275" x="256.444" height="25.644" width="12.822"/></g><g transform="rotate(-45 323.841 373.739)"><rect ry="6.411" y="491.969" x="256.444" height="25.644" width="12.822"/><rect width="12.822" height="25.644" x="256.444" y="546.275" ry="6.411"/></g><g transform="rotate(-90 326.114 465.472)"><rect width="12.822" height="25.644" x="256.444" y="491.969" ry="6.411"/><rect ry="6.411" y="546.275" x="256.444" height="25.644" width="12.822"/></g><g transform="rotate(-135 327.055 503.47)"><rect ry="6.411" y="491.969" x="256.444" height="25.644" width="12.822"/><rect width="12.822" height="25.644" x="256.444" y="546.275" ry="6.411"/></g></g><g id="cannon"><path d="M402.58 280.564l8.818 8.082 20.824-7.915-.717-31.051-19.908-7.632-10.941 9.228c-221.227 2.23-245.431 27.9 1.925 29.288z" fill="#2e3436"/></g></g></svg>
 
@@ -406,6 +406,10 @@
                 if(ev.keyCode==40){
                     tank.aiming=0;
                 }
+                if(ev.keyCode==83){
+                    sound.checked=!sound.checked;
+                }
+                console.log(ev.keyCode);
             });
 
             function gameLoop(){
